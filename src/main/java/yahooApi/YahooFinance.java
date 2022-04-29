@@ -3,7 +3,12 @@ package yahooApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import yahooApi.beans.Asset;
+import yahooApi.beans.QuoteResponse;
+import yahooApi.beans.Result;
+import yahooApi.exceptions.*;
 import yahooApi.beans.YahooResponse;
+import yahoofinance.Stock;
+import yahoofinance.histquotes.Interval;
 
 import javax.json.*;
 import java.io.*;
@@ -11,12 +16,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
 public class YahooFinance {
 
     public static final String URL_YAHOO = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s";
+    private Calendar cal;
 
     public String requestData(List<String> tickers) {
         //TODO improve Error Handling
@@ -83,5 +90,31 @@ public class YahooFinance {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public double getHighestQuote(List<String> tickers) throws YahooException, IOException {
+        YahooResponse response = this.getCurrentData(tickers);
+        QuoteResponse quotes = response.getQuoteResponse();
+        return quotes.getResult().stream()
+                .mapToDouble(Result::getAsk)
+                .max()
+                .orElseThrow(() -> new YahooException("There was an error calculating the maximum value."));
+    }
+
+    public double getAverageQuote(List<String> tickers) throws YahooException, IOException {
+        YahooResponse response = this.getCurrentData(tickers);
+        QuoteResponse quotes = response.getQuoteResponse();
+        return quotes.getResult().stream()
+                .mapToDouble(Result::getAsk)
+                .average()
+                .orElseThrow(() -> new YahooException("There was an error calculating the maximum value."));
+    }
+
+    public long getTotalRecords(List<String> tickers) throws IOException {
+        YahooResponse response = this.getCurrentData(tickers);
+        QuoteResponse quotes = response.getQuoteResponse();
+        return quotes.getResult().stream()
+                .mapToDouble(Result::getAsk)
+                .count();
     }
 }
