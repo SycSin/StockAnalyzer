@@ -18,7 +18,7 @@ public class UserInterface
 			ctrl.process("INTC,AAPL,AMZN");
 		}
 		catch(YahooException e){
-			System.out.println(e.getMessage());
+			UserInterface.print(e.getMessage());
 		}
 	}
 
@@ -27,7 +27,7 @@ public class UserInterface
 			ctrl.process("INTC");
 		}
 		catch(YahooException e){
-			System.out.println(e.getMessage());
+			UserInterface.print(e.getMessage());
 		}
 	}
 
@@ -36,7 +36,7 @@ public class UserInterface
 			ctrl.process("AAPL");
 		}
 		catch(YahooException e){
-			System.out.println(e.getMessage());
+			UserInterface.print(e.getMessage());
 		}
 	}
 	public void getDataFromCtrl4(){
@@ -44,7 +44,7 @@ public class UserInterface
 			ctrl.process("AMZN,AAPL");
 		}
 		catch(YahooException e){
-			System.out.println(e.getMessage());
+			UserInterface.print(e.getMessage());
 		}
 	}
 	
