@@ -1,5 +1,6 @@
 package stockanalyzer.ctrl;
 
+import stockanalyzer.ui.UserInterface;
 import yahooApi.YahooFinance;
 import yahooApi.exceptions.*;
 
@@ -40,7 +41,7 @@ public class Controller {
 			System.out.println("The average quote is: "+yahooFinance.getAverageQuote(tickers));
 			System.out.println("The total sum of records is: "+yahooFinance.getTotalRecords(tickers));
 		} catch (IOException | YahooException e){
-			System.out.println(e.getMessage());
+			UserInterface.print(e.getMessage());
 		}
 	}
 
