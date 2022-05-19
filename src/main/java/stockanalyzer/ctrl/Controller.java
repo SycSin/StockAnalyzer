@@ -1,5 +1,6 @@
 package stockanalyzer.ctrl;
 
+import stockanalyzer.downloader.Downloader;
 import stockanalyzer.ui.UserInterface;
 import yahooApi.YahooFinance;
 import yahooApi.exceptions.*;
@@ -14,25 +15,39 @@ public class Controller {
 
 	private YahooFinance yahooFinance;
 	private List<String> tickers;
-	
-	public void process(String ticker) throws YahooException{
+
+	public void process(String ticker, Downloader... downloader) throws YahooException{
 		System.out.println("Start process");
 
-		if(ticker != null && ticker.length() > 0){
+		if(ticker.length() > 0){
 			getData(ticker);
 			serveData();
+			if(downloader.length == 1){
+				downloadTickersToJSON(downloader[0]);
+			}
 		}
 		else{
 			throw new YahooException("ticker cannot be null or empty!");
 		}
-
 	}
-	
 
-	public Object getData(String searchString){
+	private void downloadTickersToJSON(Downloader downloader) throws YahooException {
+		if(tickers != null){
+			long start = System.nanoTime();
+			downloader.process(tickers);
+			long end = System.nanoTime();
+			long totalTime = (end - start)/100000;
+			System.out.printf("Time spent writing to JSON-File(s): %s ms", totalTime);
+		}
+		else{
+			throw new YahooException("The tickers collection has not been initialized yet! Make sure to call the getData method first!");
+		}
+	}
+
+
+	public void getData(String searchString){
 		tickers = Stream.of(searchString.split(",")).map(String::trim).collect(Collectors.toList());
 		yahooFinance = new YahooFinance();
-		return null;
 	}
 
 	public void serveData(){

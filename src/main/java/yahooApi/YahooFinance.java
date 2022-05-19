@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import yahooApi.beans.Asset;
 import yahooApi.beans.QuoteResponse;
-import yahooApi.beans.Result;
 import yahooApi.exceptions.*;
 import yahooApi.beans.YahooResponse;
 import yahoofinance.Stock;
-import yahoofinance.histquotes.Interval;
 
 import javax.json.*;
 import java.io.*;
@@ -16,14 +14,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
 public class YahooFinance {
 
     public static final String URL_YAHOO = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=%s";
-    private Calendar cal;
+    public Stock stock;
 
     public String requestData(List<String> tickers) {
         //TODO improve Error Handling
@@ -95,26 +92,44 @@ public class YahooFinance {
     public double getHighestQuote(List<String> tickers) throws YahooException, IOException {
         YahooResponse response = this.getCurrentData(tickers);
         QuoteResponse quotes = response.getQuoteResponse();
-        return quotes.getResult().stream()
-                .mapToDouble(Result::getAsk)
-                .max()
-                .orElseThrow(() -> new YahooException("There was an error calculating the maximum value."));
+        double result = 0.0;
+        for (String ticker : tickers){
+            stock = yahoofinance.YahooFinance.get(ticker);
+            result += stock.getHistory().stream()
+                    .mapToDouble(q -> q.getClose().doubleValue())
+                    .max()
+                    .orElseThrow(
+                            () -> new YahooException("Historic data could not be fetched!")
+                    );
+        }
+        return result;
     }
 
     public double getAverageQuote(List<String> tickers) throws YahooException, IOException {
         YahooResponse response = this.getCurrentData(tickers);
         QuoteResponse quotes = response.getQuoteResponse();
-        return quotes.getResult().stream()
-                .mapToDouble(Result::getAsk)
-                .average()
-                .orElseThrow(() -> new YahooException("There was an error calculating the maximum value."));
+        double result = 0.0;
+        for (String ticker : tickers){
+            stock = yahoofinance.YahooFinance.get(ticker);
+            result += stock.getHistory().stream()
+                    .mapToDouble(q -> q.getClose().doubleValue())
+                    .average()
+                    .orElseThrow(
+                            () -> new YahooException("Historic data could not be fetched!")
+                    );
+        }
+        return result;
     }
 
     public long getTotalRecords(List<String> tickers) throws IOException {
         YahooResponse response = this.getCurrentData(tickers);
-        QuoteResponse quotes = response.getQuoteResponse();
-        return quotes.getResult().stream()
-                .mapToDouble(Result::getAsk)
-                .count();
+        long result = 0;
+        for (String ticker : tickers){
+            stock = yahoofinance.YahooFinance.get(ticker);
+            result += stock.getHistory().stream()
+                    .mapToLong(x->x.getClose().longValue())
+                    .count();
+        }
+        return result;
     }
 }

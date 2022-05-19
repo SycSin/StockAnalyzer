@@ -4,6 +4,10 @@ package stockanalyzer.ui;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import stockanalyzer.downloader.Downloader;
+import stockanalyzer.downloader.ParallelDownloader;
+import stockanalyzer.downloader.SequentialDownloader;
 import yahooApi.exceptions.*;
 
 import stockanalyzer.ctrl.Controller;
@@ -15,7 +19,8 @@ public class UserInterface
 
 	public void getDataFromCtrl1() {
 		try{
-			ctrl.process("INTC,AAPL,AMZN");
+			Downloader sd = new SequentialDownloader();
+			ctrl.process("INTC,AAPL,AMZN",sd);
 		}
 		catch(YahooException e){
 			UserInterface.print(e.getMessage());
@@ -24,7 +29,8 @@ public class UserInterface
 
 	public void getDataFromCtrl2(){
 		try{
-			ctrl.process("INTC");
+			Downloader pd = new ParallelDownloader();
+			ctrl.process("INTC,AAPL,AMZN",pd);
 		}
 		catch(YahooException e){
 			UserInterface.print(e.getMessage());
@@ -33,7 +39,7 @@ public class UserInterface
 
 	public void getDataFromCtrl3(){
 		try{
-			ctrl.process("AAPL");
+			ctrl.process("INTC");
 		}
 		catch(YahooException e){
 			UserInterface.print(e.getMessage());
@@ -41,26 +47,35 @@ public class UserInterface
 	}
 	public void getDataFromCtrl4(){
 		try{
-			ctrl.process("AMZN,AAPL");
+			ctrl.process("AAPL");
 		}
 		catch(YahooException e){
 			UserInterface.print(e.getMessage());
 		}
 	}
-	
+
+	public void getDataFromCtrl5(){
+		try{
+			ctrl.process("AMZN");
+		}
+		catch(YahooException e){
+			UserInterface.print(e.getMessage());
+		}
+	}
+
 	public void getDataForCustomInput() {
-		
+
 	}
 
 
 	public void start() {
 		Menu<Runnable> menu = new Menu<>("User Interfacx");
 		menu.setTitel("Wählen Sie aus:");
-		menu.insert("a", "INTC,APPL,AMZN", this::getDataFromCtrl1);
-		menu.insert("b", "INTC", this::getDataFromCtrl2);
-		menu.insert("c", "AAPL", this::getDataFromCtrl3);
-		menu.insert("d", "AMZN",this::getDataForCustomInput);
-		menu.insert("z", "AMZN, APPL",this::getDataFromCtrl4);
+		menu.insert("a", "INTC,AAPL,AMZN - SequentialDownloader", this::getDataFromCtrl1);
+		menu.insert("b", "INTC,AAPL,AMZN - ParallelDownloader", this::getDataFromCtrl2);
+		menu.insert("c", "INTC", this::getDataFromCtrl3);
+		menu.insert("d", "AAPL",this::getDataFromCtrl4);
+		menu.insert("z", "AMZN",this::getDataFromCtrl5);
 		menu.insert("q", "Quit", null);
 		Runnable choice;
 		while ((choice = menu.exec()) != null) {
